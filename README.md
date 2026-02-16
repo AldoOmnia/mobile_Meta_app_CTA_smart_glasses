@@ -6,6 +6,14 @@ A companion iOS app for pairing with Meta AI Glasses, station selection, real-ti
 
 ---
 
+## Quick Start (Clone & Open in Xcode)
+
+See **[GITHUB_SETUP.md](GITHUB_SETUP.md)** for:
+- Creating the GitHub repo and pushing
+- Cloning the repo and opening in Xcode step-by-step
+
+---
+
 ## Overview
 
 | Component | Purpose |
