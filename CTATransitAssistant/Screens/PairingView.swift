@@ -10,6 +10,14 @@ import SwiftUI
 struct PairingView: View {
     @EnvironmentObject var appState: AppState
     
+    private var isSimulator: Bool {
+        #if targetEnvironment(simulator)
+        return true
+        #else
+        return false
+        #endif
+    }
+    
     var body: some View {
         VStack(spacing: 28) {
             Spacer()
@@ -58,6 +66,18 @@ struct PairingView: View {
                 }
                 .buttonStyle(.borderedProminent)
             }
+            
+            // Bypass for testing without glasses (simulator or device)
+            Button(action: {
+                appState.isGlassesPaired = true
+                appState.metaDATService.isPaired = true
+                appState.metaDATService.pairingState = .connected
+            }) {
+                Text(isSimulator ? "Continue for Demo" : "Continue without Glasses")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.top, 8)
             
             Spacer()
         }
