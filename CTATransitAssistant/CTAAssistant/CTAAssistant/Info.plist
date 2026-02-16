@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>CTA Transit Assistant uses your location to find the nearest CTA 'L' station and show arrival times.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>CTA Transit Assistant uses Bluetooth to pair with Meta AI Glasses for hands-free audio announcements.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>bluetooth-central</string>
+	</array>
+	<key>MWDAT</key>
+	<dict>
+		<key>Analytics</key>
+		<dict>
+			<key>OptOut</key>
+			<false/>
+		</dict>
+	</dict>
+</dict>
+</plist>
