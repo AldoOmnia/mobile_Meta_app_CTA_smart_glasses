@@ -53,8 +53,8 @@ struct PairingInstructionsView: View {
                             title: "Turn on Bluetooth",
                             detail: "Go to iPhone Settings → Bluetooth and turn it ON. Keep your phone and glasses close together."
                         )
-                        Button(action: openSettings) {
-                            Label("Open Settings (then tap Bluetooth)", systemImage: "gear")
+                        Button(action: openBluetoothSettings) {
+                            Label("Open Bluetooth Settings", systemImage: "antenna.radiowaves.left.and.right")
                                 .font(.subheadline)
                                 .foregroundColor(ctaBlue)
                         }
@@ -109,6 +109,18 @@ struct PairingInstructionsView: View {
             UIApplication.shared.open(metaURL)
         } else if let storeURL = URL(string: metaAIAppStoreURL) {
             UIApplication.shared.open(storeURL)
+        }
+    }
+    
+    private func openBluetoothSettings() {
+        if let url = URL(string: "App-Prefs:Bluetooth") {
+            UIApplication.shared.open(url) { success in
+                if !success, let settings = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(settings)
+                }
+            }
+        } else if let settings = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(settings)
         }
     }
     

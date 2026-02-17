@@ -40,7 +40,7 @@ struct ArrivalsView: View {
             if let err = error {
                 Text(err)
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(CTAColors.redLineRed)
                     .padding()
             }
             
@@ -52,7 +52,7 @@ struct ArrivalsView: View {
                 List(appState.arrivals) { arrival in
                     HStack {
                         Image(systemName: routeIcon(arrival.route))
-                            .foregroundStyle(routeColor(arrival.route))
+                            .foregroundStyle(ctaLineColor(arrival.route))
                             .frame(width: 32)
                         VStack(alignment: .leading) {
                             Text("\(arrival.route) to \(arrival.destination)")
@@ -65,8 +65,7 @@ struct ArrivalsView: View {
                         Button {
                             appState.metaDATService.speakToGlasses(arrival.spokenSummary)
                         } label: {
-                            Image(systemName: "speaker.wave.2.fill")
-                                .foregroundStyle(.blue)
+                            glassesSpeakIcon
                         }
                     }
                 }
@@ -91,21 +90,23 @@ struct ArrivalsView: View {
         isLoading = false
     }
     
+    @ViewBuilder
+    private var glassesSpeakIcon: some View {
+        if UIImage(named: "GlassesIcon") != nil {
+            Image("GlassesIcon")
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(CTAColors.blueLineBlue)
+        } else {
+            Image(systemName: "speaker.wave.2.fill")
+                .foregroundStyle(CTAColors.blueLineBlue)
+        }
+    }
+    
     private func routeIcon(_ route: String) -> String {
         "train.side.front.car"
     }
     
-    private func routeColor(_ route: String) -> Color {
-        switch route.uppercased() {
-        case "RED": return .red
-        case "BLUE": return .blue
-        case "GREEN": return .green
-        case "BROWN": return .brown
-        case "PURPLE": return .purple
-        case "ORANGE": return .orange
-        case "PINK": return .pink
-        case "YELLOW": return .yellow
-        default: return .primary
-        }
-    }
 }

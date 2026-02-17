@@ -6,7 +6,7 @@
 //
 
 import Foundation
-internal import CoreLocation
+import CoreLocation
 import Combine
 
 @MainActor

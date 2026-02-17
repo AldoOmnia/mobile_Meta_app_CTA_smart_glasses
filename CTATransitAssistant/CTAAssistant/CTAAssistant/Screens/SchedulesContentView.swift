@@ -27,7 +27,7 @@ struct SchedulesContentView: View {
             if let err = error {
                 Text(err)
                     .font(.caption)
-                    .foregroundColor(.red)
+                    .foregroundColor(CTAColors.redLineRed)
                     .padding()
             }
             
@@ -82,29 +82,31 @@ struct SchedulesContentView: View {
     }
     
     private func arrivalRow(_ arrival: CTAArrival, highlight: Bool) -> some View {
-        HStack {
-            Image(systemName: "train.side.front.car")
-                .foregroundStyle(routeColor(arrival.route))
-                .frame(width: 32)
-            VStack(alignment: .leading) {
+        HStack(spacing: 12) {
+            CTALineBadge(arrival.route, compact: true)
+                .frame(minWidth: 58, alignment: .center)
+                .fixedSize(horizontal: true, vertical: false)
+            VStack(alignment: .leading, spacing: 2) {
                 Text("\(arrival.route) to \(arrival.destination)")
                     .font(highlight ? .headline : .subheadline.weight(.medium))
+                    .lineLimit(1)
                 Text("\(arrival.predictionMinutes) min")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-            Spacer()
+            .frame(maxWidth: .infinity, alignment: .leading)
             Button {
                 appState.metaDATService.speakToGlasses(arrival.spokenSummary)
             } label: {
-                Image(systemName: "speaker.wave.2.fill")
-                    .foregroundStyle(.blue)
+                glassesSpeakIcon
             }
         }
-        .padding()
-        .background(highlight ? Color.blue.opacity(0.08) : Color.clear)
-        .cornerRadius(8)
-        .padding(.horizontal)
+        .padding(.vertical, 14)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(highlight ? CTAColors.blueLineBlue.opacity(0.12) : Color.clear)
+        .cornerRadius(10)
+        .padding(.horizontal, 8)
     }
     
     private func refreshArrivals() async {
@@ -120,17 +122,19 @@ struct SchedulesContentView: View {
         isLoading = false
     }
     
-    private func routeColor(_ route: String) -> Color {
-        switch route.uppercased() {
-        case "RED": return .red
-        case "BLUE": return .blue
-        case "GREEN": return .green
-        case "BROWN": return .brown
-        case "PURPLE": return .purple
-        case "ORANGE": return .orange
-        case "PINK": return .pink
-        case "YELLOW": return .yellow
-        default: return .primary
+    @ViewBuilder
+    private var glassesSpeakIcon: some View {
+        if UIImage(named: "GlassesIcon") != nil {
+            Image("GlassesIcon")
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(CTAColors.blueLineBlue)
+        } else {
+            Image(systemName: "speaker.wave.2.fill")
+                .foregroundStyle(CTAColors.blueLineBlue)
         }
     }
+    
 }

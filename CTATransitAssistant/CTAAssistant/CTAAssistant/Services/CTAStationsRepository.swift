@@ -7,7 +7,7 @@
 //
 
 import Foundation
-internal import CoreLocation
+import CoreLocation
 
 final class CTAStationsRepository {
     static let shared = CTAStationsRepository()
@@ -22,6 +22,8 @@ final class CTAStationsRepository {
         CTAStation(id: "40350", mapId: "40350", stationName: "Lake", latitude: 41.884809, longitude: -87.627813, routes: ["Red"]),
         CTAStation(id: "41490", mapId: "41490", stationName: "Monroe", latitude: 41.880703, longitude: -87.627696, routes: ["Red"]),
         CTAStation(id: "41090", mapId: "41090", stationName: "Harrison", latitude: 41.874039, longitude: -87.627479, routes: ["Red"]),
+        CTAStation(id: "40670", mapId: "40670", stationName: "Lawrence", latitude: 41.969059, longitude: -87.658493, routes: ["Red"]),
+        CTAStation(id: "41360", mapId: "41360", stationName: "State/Lake", latitude: 41.885574, longitude: -87.627635, routes: ["Red", "Green", "Brown", "Orange", "Pink", "Purple"]),
         // Blue Line
         CTAStation(id: "40570", mapId: "40570", stationName: "O'Hare", latitude: 41.982819, longitude: -87.904223, routes: ["Blue"]),
         CTAStation(id: "40490", mapId: "40490", stationName: "Washington", latitude: 41.883164, longitude: -87.629440, routes: ["Blue"]),
@@ -46,6 +48,12 @@ final class CTAStationsRepository {
     
     func station(byMapId mapId: String) -> CTAStation? {
         allStations.first { $0.mapId == mapId }
+    }
+    
+    /// Look up station by name (case-insensitive, contains). For alert-to-location mapping.
+    func station(byName name: String) -> CTAStation? {
+        let lower = name.lowercased()
+        return allStations.first { $0.stationName.lowercased().contains(lower) || lower.contains($0.stationName.lowercased()) }
     }
     
     private init() {}

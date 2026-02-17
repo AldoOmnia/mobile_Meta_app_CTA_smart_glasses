@@ -11,6 +11,7 @@ struct SettingsView: View {
     @EnvironmentObject var appState: AppState
     @AppStorage("notificationsEnabled") private var notificationsEnabled = true
     @AppStorage("operatorModeEnabled") private var operatorModeEnabled = false
+    @State private var showGlassesGuide = false
     @AppStorage("largeTextEnabled") private var largeTextEnabled = false
     @AppStorage("audioPreferred") private var audioPreferred = true
     
@@ -35,21 +36,32 @@ struct SettingsView: View {
                     Text("Operator mode shows line/run selection and schedule info.")
                 }
                 
+                
                 Section {
                     Toggle("Larger Text", isOn: $largeTextEnabled)
-                    Toggle("Prioritize Audio Announcements", isOn: $audioPreferred)
+                    Button("Hear glasses instructions") {
+                        showGlassesGuide = true
+                    }
                 } header: {
                     Text("Accessibility")
+                } footer: {
+                    Text("Step-by-step AI audio for schedules, arrivals, and safety recording.")
                 }
                 
                 Section {
                     Button("Unpair Glasses", role: .destructive) {
                         appState.isGlassesPaired = false
+                        appState.userRoleSelected = false
                         appState.metaDATService.disconnect()
+                        UserDefaults.standard.set(false, forKey: "skipGlassesActivator")
                     }
                 }
             }
             .navigationTitle("Settings")
+            .sheet(isPresented: $showGlassesGuide) {
+                GlassesGuideSheet(onDismiss: { showGlassesGuide = false })
+                    .environmentObject(appState)
+            }
         }
         .onAppear {
             appState.isOperatorMode = operatorModeEnabled

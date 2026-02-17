@@ -8,10 +8,21 @@
 
 import Foundation
 
-enum CTAServiceError: Error {
+enum CTAServiceError: LocalizedError {
     case invalidURL
     case networkError(Error)
     case decodingError
+    
+    var errorDescription: String? {
+        switch self {
+        case .invalidURL:
+            return "Could not build request URL. Please check your connection and try again."
+        case .networkError(let error):
+            return error.localizedDescription
+        case .decodingError:
+            return "Could not parse the response. The service may be temporarily unavailable."
+        }
+    }
 }
 
 final class CTAService {
@@ -25,9 +36,14 @@ final class CTAService {
         guard let url = URL(string: "\(baseURL)/ttarrivals.aspx?key=\(apiKey)&mapid=\(mapId)&outputType=JSON") else {
             throw CTAServiceError.invalidURL
         }
-        
-        let (data, _) = try await session.data(from: url)
-        return try parseArrivalsResponse(data)
+        do {
+            let (data, _) = try await session.data(from: url)
+            return try parseArrivalsResponse(data)
+        } catch _ as DecodingError {
+            throw CTAServiceError.decodingError
+        } catch {
+            throw CTAServiceError.networkError(error)
+        }
     }
     
     private func parseArrivalsResponse(_ data: Data) throws -> [CTAArrival] {
@@ -72,48 +88,78 @@ final class CTAService {
         }
     }
     
+    // MARK: - Active Run Numbers (from arrivals at busy stations)
+    
+    /// Fetches arrivals from busy stations to get run numbers of trains currently in service.
+    func fetchActiveRunNumbers() async throws -> [(run: String, route: String)] {
+        let stationIds = ["40170", "41820", "40570"]  // Clark/Lake, Jackson, O'Hare
+        var seen = Set<String>()
+        var result: [(run: String, route: String)] = []
+        for mapId in stationIds {
+            do {
+                let arrivals = try await fetchArrivals(mapId: mapId)
+                for a in arrivals {
+                    guard let rn = a.runNumber, !rn.isEmpty, !seen.contains(rn) else { continue }
+                    seen.insert(rn)
+                    result.append((run: rn, route: a.route))
+                }
+            } catch {
+                continue  // Skip failed station
+            }
+        }
+        return result
+    }
+    
     // MARK: - Follow This Train
     
     func fetchFollowThisTrain(runNumber: String) async throws -> [CTAFollowStop] {
-        guard let url = URL(string: "\(baseURL)/ttfollow.aspx?key=\(apiKey)&runnumber=\(runNumber)&outputType=JSON") else {
+        let runEncoded = runNumber.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? runNumber
+        guard let url = URL(string: "\(baseURL)/ttfollow.aspx?key=\(apiKey)&runnumber=\(runEncoded)&outputType=JSON") else {
             throw CTAServiceError.invalidURL
         }
-        
-        let (data, _) = try await session.data(from: url)
-        return try parseFollowResponse(data)
+        do {
+            let (data, _) = try await session.data(from: url)
+            return try parseFollowResponse(data)
+        } catch _ as DecodingError {
+            throw CTAServiceError.decodingError
+        } catch {
+            throw CTAServiceError.networkError(error)
+        }
     }
     
     private func parseFollowResponse(_ data: Data) throws -> [CTAFollowStop] {
         struct CTAFollowResponse: Decodable {
             let ctatt: CTAFollowAtt?
             struct CTAFollowAtt: Decodable {
-                let route: [RouteStop]?
-                struct RouteStop: Decodable {
-                    let train: [TrainStop]?
-                    struct TrainStop: Decodable {
-                        let nextStaId: String?
-                        let nextStaNm: String?
-                        let arrT: String?
-                    }
+                let eta: [ETA]?
+                let errCd: String?
+                let errNm: String?
+                struct ETA: Decodable {
+                    let staId: String?
+                    let staNm: String?
+                    let arrT: String?
                 }
             }
         }
         
         let response = try JSONDecoder().decode(CTAFollowResponse.self, from: data)
-        guard let routes = response.ctatt?.route else { return [] }
+        guard let ctatt = response.ctatt else { return [] }
+        
+        // Surface API errors (e.g. "No trains with runnumber X were found")
+        if let errCd = ctatt.errCd, errCd != "0", !errCd.isEmpty,
+           let errNm = ctatt.errNm, !errNm.isEmpty {
+            throw CTAServiceError.networkError(NSError(domain: "CTA", code: Int(errCd) ?? -1, userInfo: [NSLocalizedDescriptionKey: errNm]))
+        }
+        
+        guard let etas = ctatt.eta else { return [] }
         
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         
-        var stops: [CTAFollowStop] = []
-        for route in routes {
-            for train in route.train ?? [] {
-                if let staId = train.nextStaId, let staNm = train.nextStaNm {
-                    let arrT = train.arrT.flatMap { formatter.date(from: $0) }
-                    stops.append(CTAFollowStop(stopId: staId, stopName: staNm, arrivalTime: arrT))
-                }
-            }
+        return etas.compactMap { eta -> CTAFollowStop? in
+            guard let staId = eta.staId, let staNm = eta.staNm else { return nil }
+            let arrT = eta.arrT.flatMap { formatter.date(from: $0) }
+            return CTAFollowStop(stopId: staId, stopName: staNm, arrivalTime: arrT)
         }
-        return stops
     }
 }

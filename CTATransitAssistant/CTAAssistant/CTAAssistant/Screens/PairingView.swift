@@ -16,48 +16,31 @@ struct PairingView: View {
     @State private var pulseOpacity: Double = 0.7
     @State private var showPairingInstructions = false
     
-    private var isSimulator: Bool {
-        #if targetEnvironment(simulator)
-        return true
-        #else
-        return false
-        #endif
-    }
-    
     var body: some View {
-        ScrollView {
+        GeometryReader { geo in
             VStack(spacing: 0) {
-                // CTA Logo at top (or SF Symbol fallback)
+                Spacer(minLength: 16)
                 logoSection
-                    .padding(.top, 20)
-                
-                Spacer(minLength: 24)
-                
+                    .padding(.top, 8)
+                Spacer(minLength: 20)
                 Text("Pair with Meta AI Glasses to hear train arrivals hands-free")
                     .font(.title3)
                     .fontWeight(.medium)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.primary)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 16)
-                
-                // Glasses in CTA blue with pulse
+                    .padding(.horizontal, 28)
+                Spacer(minLength: 12)
                 glassesSection
-                    .padding(.vertical, 16)
-                
-                Spacer(minLength: 24)
-                
-                // Buttons
+                    .frame(width: min(geo.size.width * 0.5, 220), height: min(geo.size.width * 0.5, 220))
+                Spacer(minLength: 20)
                 buttonsSection
                     .padding(.horizontal, 24)
-                    .padding(.bottom, 24)
-                
-                // Powered by Omnia
+                Spacer(minLength: 16)
                 poweredBySection
-                    .padding(.bottom, 20)
+                    .padding(.vertical, 16)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .scrollIndicators(.hidden)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemBackground))
         .onAppear {
@@ -96,33 +79,33 @@ struct PairingView: View {
         if UIImage(named: "GlassesSilhouette") != nil {
             ZStack {
                 Image("GlassesSilhouette")
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 140, height: 140)
                     .foregroundColor(ctaBlue.opacity(pulseOpacity * 0.3))
                     .scaleEffect(pulseScale)
                 
                 Image("GlassesSilhouette")
+                    .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 120, height: 120)
                     .foregroundColor(ctaBlue)
             }
         } else {
             Image(systemName: "glasses")
-                .font(.system(size: 80))
+                .font(.system(size: 120))
                 .foregroundStyle(ctaBlue)
         }
     }
     
     private var buttonsSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 14) {
             switch appState.metaDATService.pairingState {
             case .idle, .failed:
                 Button(action: { showPairingInstructions = true }) {
                     Label("Pair Glasses", systemImage: "link")
                         .frame(maxWidth: .infinity)
-                        .padding()
+                        .padding(.vertical, 16)
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(ctaBlue)
@@ -131,7 +114,7 @@ struct PairingView: View {
                 if case .failed(let msg) = appState.metaDATService.pairingState {
                     Text(msg)
                         .font(.caption)
-                        .foregroundColor(.red)
+                        .foregroundColor(CTAColors.redLineRed)
                 }
             case .scanning, .connecting:
                 ProgressView("Searching for glasses...")
@@ -143,7 +126,7 @@ struct PairingView: View {
                 }) {
                     Label("Continue", systemImage: "checkmark.circle.fill")
                         .frame(maxWidth: .infinity)
-                        .padding()
+                        .padding(.vertical, 16)
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(ctaBlue)
@@ -154,11 +137,11 @@ struct PairingView: View {
                 appState.metaDATService.isPaired = true
                 appState.metaDATService.pairingState = .connected
             }) {
-                Text(isSimulator ? "Continue for Demo (Simulator)" : "Continue without Glasses")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                Text("Continue without pairing")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundColor(ctaBlue)
             }
-            .padding(.top, 8)
+            .padding(.top, 4)
         }
     }
     

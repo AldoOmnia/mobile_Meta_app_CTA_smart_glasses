@@ -6,13 +6,17 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 private let ctaBlue = Color(red: 0, green: 0.184, blue: 0.424)
+
+private let proximityRadiusMeters: Double = 4_828  // 3 miles
 
 struct SchedulesTabView: View {
     @EnvironmentObject var appState: AppState
     @StateObject private var recordingService = SessionRecordingService()
     @AppStorage("UserProfile") private var userProfileData: Data?
+    @AppStorage("AutoRecordNearEmergency") private var autoRecordNearEmergency = false
     @State private var showRecordingGrant = false
     @State private var showProfileSettings = false
     
@@ -24,25 +28,42 @@ struct SchedulesTabView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    // Recorder trigger (top) - user-granted
                     recorderSection
-                    
-                    // User profile: location, picture, preferences
                     userProfileSection
-                    
-                    // Arrivals & Departures content
+                    if recordingService.hasUserGranted && !recordingService.savedRecordings.isEmpty {
+                        recordingsSection
+                    }
+                    routeStatusSection
                     if appState.selectedStation != nil {
                         SchedulesContentView()
                     } else {
-                        StationSelectView()
+                        StationSelectView(embeddedInScroll: true)
                     }
+                    serviceAlertsSection
                 }
             }
             .navigationTitle("Schedules")
+            .onAppear {
+                appState.locationService.requestAuthorization()
+                appState.locationService.startUpdatingLocation()
+                if appState.selectedStation == nil, let nearest = appState.locationService.nearestStation {
+                    appState.selectedStation = nearest
+                }
+                checkProximityAndAutoRecord(location: appState.locationService.lastLocation)
+            }
+            .onChange(of: appState.locationService.nearestStation) { _, nearest in
+                if appState.selectedStation == nil, let nearest = nearest {
+                    appState.selectedStation = nearest
+                }
+            }
+            .onChange(of: appState.locationService.lastLocation) { _, location in
+                checkProximityAndAutoRecord(location: location)
+            }
             .toolbar {
                 if appState.selectedStation != nil {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Change Station") {
+                            appState.previousStation = appState.selectedStation
                             appState.selectedStation = nil
                         }
                     }
@@ -52,6 +73,10 @@ struct SchedulesTabView: View {
                 RecordingGrantSheet(
                     onGrant: {
                         recordingService.requestGrant()
+                        showRecordingGrant = false
+                    },
+                    onGrantAndStart: {
+                        recordingService.requestGrantAndStart()
                         showRecordingGrant = false
                     },
                     onDismiss: { showRecordingGrant = false }
@@ -73,21 +98,68 @@ struct SchedulesTabView: View {
     
     private var recorderSection: some View {
         Group {
-            if recordingService.hasUserGranted {
-                Button(action: { recordingService.toggleRecording() }) {
+            if recordingService.isRecording {
+                VStack(spacing: 12) {
                     HStack {
-                        Image(systemName: recordingService.isRecording ? "stop.circle.fill" : "record.circle")
-                            .font(.title2)
-                            .foregroundColor(recordingService.isRecording ? .red : ctaBlue)
-                        Text(recordingService.isRecording ? "Stop Recording" : "Start Safety Recording")
-                            .font(.subheadline.weight(.medium))
+                        Circle()
+                            .fill(CTAColors.redLineRed)
+                            .frame(width: 12, height: 12)
+                            .overlay(Circle().stroke(CTAColors.redLineRed.opacity(0.5), lineWidth: 2))
+                        Text("REC")
+                            .font(.caption.weight(.bold))
+                            .foregroundColor(CTAColors.redLineRed)
                         Spacer()
+                        Button("Stop") { recordingService.toggleRecording() }
+                            .fontWeight(.semibold)
+                            .foregroundColor(CTAColors.redLineRed)
                     }
                     .padding()
-                    .background(Color(.secondarySystemBackground))
+                    .background(CTAColors.redLineRed.opacity(0.08))
+                    .cornerRadius(12)
+                    Text("Live POV preview (glasses camera)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                        .background(Color(.secondarySystemBackground))
+                        .cornerRadius(12)
+                }
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 12)
+            } else if recordingService.hasUserGranted {
+                VStack(alignment: .leading, spacing: 12) {
+                    Button(action: { recordingService.toggleRecording() }) {
+                        HStack {
+                            Image(systemName: "record.circle")
+                                .font(.title2)
+                                .foregroundColor(ctaBlue)
+                            Text("Start Safety Recording")
+                                .font(.subheadline.weight(.medium))
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color(.secondarySystemBackground))
+                        .cornerRadius(12)
+                    }
+                    .buttonStyle(.plain)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Toggle(isOn: $autoRecordNearEmergency) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Auto-record when near emergency")
+                                    .font(.subheadline.weight(.medium))
+                                Text("POV recording starts automatically if you're within 3 miles of an emergency from the alerts below. You can stop anytime. Location only used to match alerts—not stored.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .tint(ctaBlue)
+                    }
+                    .padding()
+                    .background(Color(.tertiarySystemBackground))
                     .cornerRadius(12)
                 }
-                .buttonStyle(.plain)
                 .padding(.horizontal)
                 .padding(.top, 8)
                 .padding(.bottom, 12)
@@ -100,7 +172,7 @@ struct SchedulesTabView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Safety Recording")
                                 .font(.subheadline.weight(.medium))
-                            Text("Tap to enable session-based recording")
+                            Text("Tap to enable. Optional: auto-record when within 3 miles of an emergency (from alerts below).")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -162,6 +234,44 @@ struct SchedulesTabView: View {
         .padding(.bottom, 16)
     }
     
+    private var routeStatusSection: some View {
+        RouteStatusSection()
+            .padding(.horizontal)
+            .padding(.bottom, 16)
+    }
+    
+    private var serviceAlertsSection: some View {
+        ServiceAlertsView()
+            .padding(.horizontal)
+            .padding(.top, 24)
+            .padding(.bottom, 32)
+    }
+    
+    private var recordingsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("My Recordings")
+                .font(.headline)
+                .padding(.horizontal)
+            ForEach(recordingService.savedRecordings, id: \.self) { url in
+                HStack {
+                    Image(systemName: "video.fill")
+                        .foregroundColor(ctaBlue)
+                    Text(url.lastPathComponent)
+                        .font(.subheadline)
+                        .lineLimit(1)
+                    Spacer()
+                    Image(systemName: "play.circle.fill")
+                        .foregroundColor(ctaBlue)
+                }
+                .padding()
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(8)
+            }
+            .padding(.horizontal)
+        }
+        .padding(.bottom, 16)
+    }
+    
     @ViewBuilder
     private var profileImage: some View {
         if let data = userProfile.profileImageData, let uiImage = UIImage(data: data) {
@@ -180,24 +290,56 @@ struct SchedulesTabView: View {
     private func saveProfile(_ profile: UserProfile) {
         userProfileData = try? JSONEncoder().encode(profile)
     }
+    
+    private func checkProximityAndAutoRecord(location: CLLocation?) {
+        guard autoRecordNearEmergency,
+              recordingService.hasUserGranted,
+              !recordingService.isRecording,
+              let userLocation = location else { return }
+        let emergencies = SampleAlerts.items.filter { $0.isEmergency }
+        for alert in emergencies {
+            guard let coord = alert.alertCoordinate else { continue }
+            let alertLocation = CLLocation(latitude: coord.latitude, longitude: coord.longitude)
+            if userLocation.distance(from: alertLocation) <= proximityRadiusMeters {
+                recordingService.startRecording()
+                break
+            }
+        }
+    }
 }
 
 // MARK: - Recording Grant Sheet
 
 struct RecordingGrantSheet: View {
     let onGrant: () -> Void
+    let onGrantAndStart: () -> Void
     let onDismiss: () -> Void
     private let ctaBlue = Color(red: 0, green: 0.184, blue: 0.424)
+    
+    @AppStorage("AutoRecordNearEmergency") private var autoRecordNearEmergency = false
     
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Safety Recording helps document transit incidents. Recordings are session-based (up to 2 min), stored efficiently, and only when you tap to start.")
+                Text("Safety Recording helps document transit incidents. Recordings are session-based (up to 2 min), stored efficiently, with POV preview on your phone.")
                     .font(.body)
                 
-                Text("• Hands-free trigger at top of Schedules\n• Power-efficient, compressed storage\n• You control when recording starts and stops")
+                Text("• Live preview on phone while recording\n• Power-efficient, compressed storage\n• Recordings saved and viewable in app")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Auto-record near emergencies")
+                        .font(.headline)
+                    Text("POV recording can start automatically when you're within 3 miles of an emergency from the Service Alerts (below). Your location is only used to match alerts—not stored. You can stop recording anytime.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    Toggle("Enable auto-record when near emergency", isOn: $autoRecordNearEmergency)
+                        .tint(ctaBlue)
+                }
+                .padding()
+                .background(Color(.tertiarySystemBackground))
+                .cornerRadius(12)
                 
                 Spacer()
             }
@@ -209,9 +351,15 @@ struct RecordingGrantSheet: View {
                     Button("Not Now") { onDismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Enable") { onGrant() }
-                        .fontWeight(.semibold)
-                        .foregroundColor(ctaBlue)
+                    Menu {
+                        Button("Enable") { onGrant() }
+                        Button("Enable & Start Recording") { onGrantAndStart() }
+                            .fontWeight(.semibold)
+                    } label: {
+                        Text("Enable")
+                            .fontWeight(.semibold)
+                            .foregroundColor(ctaBlue)
+                    }
                 }
             }
         }
@@ -252,7 +400,7 @@ struct ProfileSettingsSheet: View {
                 }
                 Section("Preferences") {
                     Toggle("Share Location for Nearest Station", isOn: $locationEnabled)
-                        .onChange(of: locationEnabled) { enabled in
+                        .onChange(of: locationEnabled) { _, enabled in
                             if enabled {
                                 locationService.requestAuthorization()
                                 locationService.startUpdatingLocation()

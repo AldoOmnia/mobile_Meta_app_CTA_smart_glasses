@@ -12,13 +12,19 @@ struct RootView: View {
         Group {
             if !appState.isGlassesPaired {
                 PairingView()
+            } else if !appState.userRoleSelected {
+                RoleSelectView()
             } else {
-                MainTabView()
+                GlassesActivatorView()
             }
         }
         .animation(.easeInOut, value: appState.isGlassesPaired)
+        .animation(.easeInOut, value: appState.userRoleSelected)
     }
 }
+
+// High-contrast blue for tab icons (matches RayBan glasses / CTA logo)
+private let tabTintBlue = Color(red: 0, green: 0.55, blue: 1.0)
 
 struct MainTabView: View {
     @EnvironmentObject var appState: AppState
@@ -27,20 +33,24 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             SchedulesTabView()
-                .tabItem { Label("Schedules", systemImage: "clock.badge.checkmark") }
+                .tabItem { Label("Schedules", systemImage: "train.side.front.car") }
                 .tag(0)
+            MapsView()
+                .tabItem { Label("Map", systemImage: "map.fill") }
+                .tag(1)
             FollowTrainView()
                 .tabItem { Label("Follow Train", systemImage: "location.fill") }
-                .tag(1)
+                .tag(2)
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
-                .tag(2)
+                .tag(3)
             if appState.isOperatorMode {
                 OperatorModeView()
                     .tabItem { Label("Operator", systemImage: "person.badge.key.fill") }
-                    .tag(3)
+                    .tag(4)
             }
         }
+        .tint(tabTintBlue)
     }
 }
 

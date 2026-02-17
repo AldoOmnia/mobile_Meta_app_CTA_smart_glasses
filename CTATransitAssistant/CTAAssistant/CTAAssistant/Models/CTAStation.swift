@@ -3,7 +3,7 @@
 //  CTA Transit Assistant
 //
 
-internal import CoreLocation
+import CoreLocation
 
 struct CTAStation: Identifiable, Hashable {
     let id: String
