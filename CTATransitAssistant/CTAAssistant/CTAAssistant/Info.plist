@@ -6,6 +6,14 @@
 	<string>CTA Transit Assistant uses your location to find the nearest CTA 'L' station and show arrival times.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>CTA Transit Assistant uses Bluetooth to pair with Meta AI Glasses for hands-free audio announcements.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Optional: Record transit incidents for safety. Session-based, only when you tap to start.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Optional: Capture audio with safety recordings. Only when recording is active.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>metaai</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>
