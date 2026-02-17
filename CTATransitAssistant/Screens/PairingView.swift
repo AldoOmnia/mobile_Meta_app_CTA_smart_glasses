@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PairingView: View {
     @EnvironmentObject var appState: AppState
+    @State private var showPairingInstructions = false
     
     private var isSimulator: Bool {
         #if targetEnvironment(simulator)
@@ -39,7 +40,7 @@ struct PairingView: View {
             
             switch appState.metaDATService.pairingState {
             case .idle, .failed:
-                Button(action: { appState.metaDATService.startPairing() }) {
+                Button(action: { showPairingInstructions = true }) {
                     Label("Pair Glasses", systemImage: "link")
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -82,6 +83,15 @@ struct PairingView: View {
             Spacer()
         }
         .padding()
+        .sheet(isPresented: $showPairingInstructions) {
+            PairingInstructionsView(
+                onStartPairing: {
+                    showPairingInstructions = false
+                    appState.metaDATService.startPairing()
+                },
+                onDismiss: { showPairingInstructions = false }
+            )
+        }
         .onChange(of: appState.metaDATService.isPaired) { _, paired in
             if paired { appState.isGlassesPaired = true }
         }

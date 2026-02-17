@@ -16,7 +16,7 @@ final class MetaDATService: ObservableObject {
     @Published var isPaired = false
     @Published var pairingState: PairingState = .idle
     
-    enum PairingState {
+    enum PairingState: Equatable {
         case idle
         case scanning
         case connecting

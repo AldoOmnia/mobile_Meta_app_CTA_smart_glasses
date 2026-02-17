@@ -26,8 +26,8 @@ struct MainTabView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            StationArrivalsTab()
-                .tabItem { Label("Arrivals", systemImage: "train.side.front.car") }
+            SchedulesTabView()
+                .tabItem { Label("Schedules", systemImage: "clock.badge.checkmark") }
                 .tag(0)
             FollowTrainView()
                 .tabItem { Label("Follow Train", systemImage: "location.fill") }
