@@ -20,7 +20,6 @@ final class SessionRecordingService: ObservableObject {
     private let maxSessionSeconds = 120
     
     init() {
-        // Load user preference
         hasUserGranted = UserDefaults.standard.bool(forKey: "RecordingUserGranted")
     }
     
