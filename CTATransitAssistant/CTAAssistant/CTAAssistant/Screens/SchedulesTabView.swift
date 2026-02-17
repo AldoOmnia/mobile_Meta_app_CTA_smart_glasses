@@ -125,7 +125,7 @@ struct SchedulesTabView: View {
         Button(action: { showProfileSettings = true }) {
             HStack(spacing: 12) {
                 profileImage
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(userProfile.displayName)
                         .font(.headline)
                     if appState.locationService.authorizationStatus == .authorizedWhenInUse,
@@ -136,6 +136,15 @@ struct SchedulesTabView: View {
                     } else {
                         Text("Location: Enable in Settings")
                             .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    // Safety Recording status in profile
+                    HStack(spacing: 4) {
+                        Image(systemName: recordingService.hasUserGranted ? "record.circle.fill" : "record.circle")
+                            .font(.caption2)
+                            .foregroundColor(recordingService.hasUserGranted ? ctaBlue : .secondary)
+                        Text(recordingService.hasUserGranted ? "Safety Recording enabled" : "Safety Recording: Tap above to enable")
+                            .font(.caption2)
                             .foregroundColor(.secondary)
                     }
                 }

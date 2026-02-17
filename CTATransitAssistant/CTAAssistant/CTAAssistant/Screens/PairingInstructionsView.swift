@@ -46,15 +46,15 @@ struct PairingInstructionsView: View {
                         detail: "Ensure your Ray-Ban Meta or Oakley Meta glasses are charged."
                     )
                     
-                    // Step 3: Bluetooth - iOS only allows opening our app's settings, not Bluetooth directly
+                    // Step 3: Bluetooth - open Settings (Apple restricts direct Bluetooth URL)
                     VStack(alignment: .leading, spacing: 8) {
                         instructionRow(
                             number: 3,
                             title: "Turn on Bluetooth",
                             detail: "Go to iPhone Settings → Bluetooth and turn it ON. Keep your phone and glasses close together."
                         )
-                        Button(action: openBluetoothSettings) {
-                            Label("Open Bluetooth Settings", systemImage: "antenna.radiowaves.left.and.right")
+                        Button(action: openSettings) {
+                            Label("Open Settings (then tap Bluetooth)", systemImage: "gear")
                                 .font(.subheadline)
                                 .foregroundColor(ctaBlue)
                         }
@@ -109,20 +109,6 @@ struct PairingInstructionsView: View {
             UIApplication.shared.open(metaURL)
         } else if let storeURL = URL(string: metaAIAppStoreURL) {
             UIApplication.shared.open(storeURL)
-        }
-    }
-    
-    private func openBluetoothSettings() {
-        // Try Bluetooth URL first (device-dependent; may not work on all iOS versions).
-        // Fallback to our app's settings if it fails.
-        if let url = URL(string: "App-Prefs:Bluetooth") {
-            UIApplication.shared.open(url) { success in
-                if !success {
-                    openSettings()
-                }
-            }
-        } else {
-            openSettings()
         }
     }
     
