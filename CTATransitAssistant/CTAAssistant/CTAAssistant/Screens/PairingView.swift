@@ -123,6 +123,7 @@ struct PairingView: View {
                 Button(action: {
                     appState.isGlassesPaired = true
                     appState.metaDATService.isPaired = true
+                    appState.metaDATService.batteryLevel = 85
                 }) {
                     Label("Continue", systemImage: "checkmark.circle.fill")
                         .frame(maxWidth: .infinity)
@@ -136,6 +137,7 @@ struct PairingView: View {
                 appState.isGlassesPaired = true
                 appState.metaDATService.isPaired = true
                 appState.metaDATService.pairingState = .connected
+                appState.metaDATService.batteryLevel = 85
             }) {
                 Text("Continue without pairing")
                     .font(.subheadline.weight(.medium))

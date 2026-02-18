@@ -112,9 +112,6 @@ struct StationSelectView: View {
         Group {
             if embeddedInScroll {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Select Station")
-                        .font(.headline)
-                        .padding(.horizontal, 20)
                     TextField("Search stations", text: $searchText)
                         .textFieldStyle(.roundedBorder)
                         .padding(.horizontal, 20)
@@ -176,8 +173,8 @@ struct StationSelectView: View {
                 }
             }
         }
-        .searchable(text: $searchText, prompt: "Search stations")
-        .navigationTitle("Select Station")
+        .modifier(ConditionalSearchable(show: !embeddedInScroll, text: $searchText, prompt: "Search stations"))
+        .modifier(ConditionalNavigationTitle(show: !embeddedInScroll, title: "Select Station"))
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 if appState.previousStation != nil {
@@ -199,5 +196,29 @@ struct StationSelectView: View {
     private func trainIcon(for route: String) -> String {
         "train.side.front.car"
     }
-    
+}
+
+private struct ConditionalNavigationTitle: ViewModifier {
+    let show: Bool
+    let title: String
+    func body(content: Content) -> some View {
+        if show {
+            content.navigationTitle(title)
+        } else {
+            content
+        }
+    }
+}
+
+private struct ConditionalSearchable: ViewModifier {
+    let show: Bool
+    @Binding var text: String
+    let prompt: String
+    func body(content: Content) -> some View {
+        if show {
+            content.searchable(text: $text, prompt: prompt)
+        } else {
+            content
+        }
+    }
 }

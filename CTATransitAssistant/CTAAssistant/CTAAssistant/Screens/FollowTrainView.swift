@@ -412,13 +412,25 @@ struct FollowTrainView: View {
             showStopsOverlay = true
             addToRecent(runNumber)
             if !stops.isEmpty {
-                let text = stops.map { $0.spokenSummary }.joined(separator: ". ")
-                appState.metaDATService.speakToGlasses(text)
+                speakStopsToGlassesInChunks(stops)
             }
         } catch {
             self.error = error.localizedDescription
         }
         isLoading = false
+    }
+    
+    /// Speak stops in chunks of 2 (1–2 sentences max) so glasses audio stays brief.
+    private func speakStopsToGlassesInChunks(_ stopList: [CTAFollowStop]) {
+        let summaries = stopList.map { $0.spokenSummary }
+        let chunkSize = 2
+        Task {
+            for i in stride(from: 0, to: summaries.count, by: chunkSize) {
+                let chunk = Array(summaries[i..<min(i + chunkSize, summaries.count)])
+                appState.metaDATService.speakToGlasses(chunk.joined(separator: ". "))
+                try? await Task.sleep(nanoseconds: 3_500_000_000)  // 3.5s between chunks
+            }
+        }
     }
     
     private func addToRecent(_ run: String) {

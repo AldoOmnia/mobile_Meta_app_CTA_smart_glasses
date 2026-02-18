@@ -97,7 +97,16 @@ flowchart TB
 
 ---
 
-## 6. Data Models
+## 6. Glasses Audio Guidelines
+
+- **Keep utterances to 1–2 sentences max.** Long text is hard to follow in-ear.
+- **Voice:** `com.apple.ttsbundle.Samantha-compact` (en-US female). When Meta DAT is wired, use AVSpeechSynthesizer or Meta's native TTS.
+- **Batching:** For lists (stops, alerts), speak in chunks of 2 items with 3–4s delay between chunks.
+- **Examples:** "Red Line to Howard, 2 minutes" / "Map at Clark/Lake. Tap a station to hear arrivals."
+
+---
+
+## 7. Data Models
 
 - **CTAStation**: `mapId`, `stationName`, `lat`, `lon`, `route`
 - **CTAArrival**: `route`, `destination`, `predictionMinutes`, `runNumber`
@@ -105,7 +114,7 @@ flowchart TB
 
 ---
 
-## 7. Prototype Checklist
+## 8. Prototype Checklist
 
 - [ ] Meta DAT integration (pairing, audio push)
 - [ ] CTA Arrivals API integration
@@ -117,7 +126,7 @@ flowchart TB
 
 ---
 
-## 8. API References
+## 9. API References
 
 - **CTA Arrivals:** `https://lapi.transitchicago.com/api/1.0/ttarrivals.aspx?key={KEY}&mapid={STATION_ID}&outputType=JSON`
 - **CTA Follow This Train:** `https://lapi.transitchicago.com/api/1.0/ttfollow.aspx?key={KEY}&runnumber={RUN}&outputType=JSON`

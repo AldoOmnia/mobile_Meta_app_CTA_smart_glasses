@@ -234,9 +234,9 @@ struct MapsView: View {
         let station = selectedStation ?? appState.selectedStation ?? appState.locationService.nearestStation
         let message: String
         if let s = station {
-            message = "Map centered near \(s.stationName). \(s.routes.joined(separator: ", ")) Line. Say a station name to hear arrivals."
+            message = "Map at \(s.stationName). Tap a station to hear arrivals."
         } else {
-            message = "Map view ready. Select a station to hear arrivals and directions on your glasses."
+            message = "Map ready. Pick a station to hear arrivals."
         }
         appState.metaDATService.speakToGlasses(message)
     }

@@ -124,13 +124,14 @@ struct GlassesActivatorView: View {
         }
     }
     
+    /// Short phrases (1–2 sentences max) for glasses audio—long text is hard to follow in-ear.
     static let glassesInstructionSteps: [String] = [
-        "Welcome to CTA Transit Assistant. You can use your glasses for everything.",
-        "Go to Schedules to hear train arrivals at your station. Say the station name or use your phone to select.",
-        "Follow This Train shows upcoming stops when you enter a run number.",
-        "Start Safety Recording to capture POV video from your glasses. Recordings save to your phone.",
-        "Operator mode gives you service alerts and schedule info in your ears.",
-        "Tap any arrival or stop to hear it spoken. You can also continue in the app on your phone."
+        "Welcome to CTA Transit Assistant. Use your glasses for everything.",
+        "Schedules shows train arrivals. Tap a station or use your phone to pick.",
+        "Follow This Train lists stops for a run number. Tap any stop to hear it.",
+        "Safety Recording captures POV video from your glasses. Saves to your phone.",
+        "Operator mode reads service alerts and schedules to your glasses.",
+        "Tap any arrival or stop to hear it. Or use the app on your phone."
     ]
 }
 

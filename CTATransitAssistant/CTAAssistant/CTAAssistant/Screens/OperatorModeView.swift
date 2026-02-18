@@ -191,8 +191,11 @@ struct OperatorModeView: View {
         do {
             let stops = try await appState.ctaService.fetchFollowThisTrain(runNumber: run)
             scheduleInfo = stops.map { $0.spokenSummary }
-            let text = scheduleInfo.isEmpty ? "No stops for run \(run)" : scheduleInfo.joined(separator: ". ")
-            appState.metaDATService.speakToGlasses(text)
+            if scheduleInfo.isEmpty {
+                appState.metaDATService.speakToGlasses("No stops for run \(run)")
+            } else {
+                speakToGlassesInChunks(scheduleInfo, delaySeconds: 3.5)
+            }
         } catch {
             self.error = error.localizedDescription
         }
@@ -211,8 +214,19 @@ struct OperatorModeView: View {
     }
     
     private func triggerAlertsInGlasses() {
-        let text = serviceAlerts.joined(separator: ". ")
-        appState.metaDATService.speakToGlasses(text)
+        speakToGlassesInChunks(serviceAlerts, delaySeconds: 3.5)
+    }
+    
+    /// Speak strings in chunks of 2 (1–2 sentences max per utterance).
+    private func speakToGlassesInChunks(_ items: [String], delaySeconds: Double = 3.5) {
+        let chunkSize = 2
+        Task {
+            for i in stride(from: 0, to: items.count, by: chunkSize) {
+                let chunk = Array(items[i..<min(i + chunkSize, items.count)])
+                appState.metaDATService.speakToGlasses(chunk.joined(separator: ". "))
+                try? await Task.sleep(nanoseconds: UInt64(delaySeconds * 1_000_000_000))
+            }
+        }
     }
 }
 

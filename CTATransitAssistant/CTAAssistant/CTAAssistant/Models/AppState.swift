@@ -21,6 +21,8 @@ final class AppState: ObservableObject {
     let metaDATService: MetaDATService
     let locationService: LocationService
     
+    private var metaDATCancellable: AnyCancellable?
+    
     init(
         ctaService: CTAService,
         busService: CTABusService,
@@ -31,6 +33,8 @@ final class AppState: ObservableObject {
         self.busService = busService
         self.metaDATService = metaDATService
         self.locationService = locationService
+        metaDATCancellable = metaDATService.objectWillChange
+            .sink { [weak self] _ in self?.objectWillChange.send() }
     }
     
     convenience init() {

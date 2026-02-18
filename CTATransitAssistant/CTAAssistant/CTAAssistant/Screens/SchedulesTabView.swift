@@ -28,6 +28,7 @@ struct SchedulesTabView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
+                    glassesStatusSection
                     recorderSection
                     userProfileSection
                     if recordingService.hasUserGranted && !recordingService.savedRecordings.isEmpty {
@@ -94,6 +95,82 @@ struct SchedulesTabView: View {
                 )
             }
         }
+    }
+    
+    private var glassesStatusSection: some View {
+        VStack(spacing: 16) {
+            // Product shot (media.webp style)
+            if UIImage(named: "GlassesProduct") != nil {
+                Image("GlassesProduct")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 88)
+                    .opacity(appState.metaDATService.isPaired ? 1 : 0.6)
+            } else if UIImage(named: "GlassesIcon") != nil {
+                Image("GlassesIcon")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 64, height: 64)
+                    .foregroundColor(appState.metaDATService.isPaired ? CTAColors.greenLineGreen : .secondary)
+            } else {
+                Image(systemName: "glasses")
+                    .font(.system(size: 48))
+                    .foregroundColor(appState.metaDATService.isPaired ? CTAColors.greenLineGreen : .secondary)
+            }
+            // Meta AI Glasses name + battery (media.webp style)
+            VStack(spacing: 4) {
+                Text("Meta AI Glasses")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                if appState.metaDATService.isPaired, let level = appState.metaDATService.batteryLevel {
+                    HStack(spacing: 4) {
+                        Image(systemName: batteryIcon(for: level))
+                            .font(.caption)
+                            .foregroundColor(batteryColor(level))
+                        Text("\(level)%")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            // Status pill
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(appState.metaDATService.isPaired ? CTAColors.greenLineGreen : CTAColors.orangeLineOrange)
+                    .frame(width: 8, height: 8)
+                Text(appState.metaDATService.isPaired ? "Connected" : "Disconnected")
+                    .font(.caption.weight(.semibold))
+                    .foregroundColor(appState.metaDATService.isPaired ? CTAColors.greenLineGreen : CTAColors.orangeLineOrange)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background((appState.metaDATService.isPaired ? CTAColors.greenLineGreen : CTAColors.orangeLineOrange).opacity(0.12))
+            .clipShape(Capsule())
+            Text(appState.metaDATService.isPaired ? "Audio will play on your glasses" : "Pair in Settings to hear audio")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .padding(.horizontal, 24)
+        .background(Color(.secondarySystemBackground))
+        .cornerRadius(16)
+        .padding(.horizontal)
+        .padding(.top, 8)
+        .padding(.bottom, 4)
+    }
+    
+    private func batteryColor(_ level: Int) -> Color {
+        if level <= 20 { return CTAColors.redLineRed }
+        if level <= 50 { return CTAColors.orangeLineOrange }
+        return CTAColors.greenLineGreen
+    }
+    
+    private func batteryIcon(for level: Int) -> String {
+        if level <= 25 { return "battery.25" }
+        if level <= 50 { return "battery.50" }
+        if level <= 75 { return "battery.75" }
+        return "battery.100"
     }
     
     private var recorderSection: some View {
