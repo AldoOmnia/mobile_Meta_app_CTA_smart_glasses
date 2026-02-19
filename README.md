@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="Chicago_Transit_Authority_Logo.png" alt="CTA Transit Assistant" width="160"/>
+</div>
+
 # CTA Transit Assistant
 
 **Hands-free CTA 'L' train arrival info on Meta AI Glasses.**
@@ -27,7 +31,7 @@ See **[GITHUB_SETUP.md](GITHUB_SETUP.md)** for:
 ## Technical Stack
 
 - **Platform:** iOS 15.2+ (Swift 6, SwiftUI)
-- **Wearables:** [Meta Wearables Device Access Toolkit (DAT)](https://github.com/facebook/meta-wearables-dat-ios)
+- **Wearables:** [Meta Wearables Device Access Toolkit (DAT)](https://github.com/facebook/meta-wearables-dat-ios) — [Build integration (iOS)](https://wearables.developer.meta.com/docs/build-integration-ios) | [Develop](https://wearables.developer.meta.com/docs/develop/)
 - **CTA Data:** [CTA Train Tracker API](https://www.transitchicago.com/developers/ttdocs/) — `ttarrivals.aspx`, `ttfollow.aspx`
 - **Location:** Core Location for nearest station detection
 
