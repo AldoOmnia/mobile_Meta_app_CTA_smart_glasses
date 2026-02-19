@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>CTA Transit Assistant uses your location to find the nearest CTA 'L' station and show arrival times.</string>
+	<string>CTA Transit Assistant needs your location to find the nearest CTA L station and display real-time train arrival times. Your location is only used to determine proximity to stations and is not shared.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>CTA Transit Assistant uses Bluetooth to connect to Meta AI Glasses for hands-free audio announcements of train arrivals and schedules. Bluetooth is required to stream audio to your glasses.</string>
 	<key>CTABusTrackerAPIKey</key>
 	<string></string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>CTA Transit Assistant uses Bluetooth to pair with Meta AI Glasses for hands-free audio announcements.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Optional: Record transit incidents for safety. Session-based, only when you tap to start.</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -25,7 +25,7 @@
 		<key>Analytics</key>
 		<dict>
 			<key>OptOut</key>
-			<false/>
+			<true/>
 		</dict>
 	</dict>
 </dict>

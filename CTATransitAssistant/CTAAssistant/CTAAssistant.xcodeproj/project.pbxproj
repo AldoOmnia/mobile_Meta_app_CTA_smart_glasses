@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B45FC452F43E00000140064 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 2B45FC462F43E00000140064 /* PrivacyInfo.xcprivacy */; };
 		2B45FC402F43DAFF00140064 /* MWDATCamera in Frameworks */ = {isa = PBXBuildFile; productRef = 2B45FC3F2F43DAFF00140064 /* MWDATCamera */; };
 		2B45FC422F43DAFF00140064 /* MWDATCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2B45FC412F43DAFF00140064 /* MWDATCore */; };
 		2B45FC442F43DAFF00140064 /* MWDATMockDevice in Frameworks */ = {isa = PBXBuildFile; productRef = 2B45FC432F43DAFF00140064 /* MWDATMockDevice */; };
@@ -33,6 +34,7 @@
 		2B45FBE82F43D65200140064 /* CTAAssistant.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CTAAssistant.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B45FBF72F43D65400140064 /* CTAAssistantTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CTAAssistantTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B45FC012F43D65400140064 /* CTAAssistantUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CTAAssistantUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B45FC462F43E00000140064 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = CTAAssistant/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -98,6 +100,7 @@
 			isa = PBXGroup;
 			children = (
 				2B45FBEA2F43D65200140064 /* CTAAssistant */,
+				2B45FC462F43E00000140064 /* PrivacyInfo.xcprivacy */,
 				2B45FBFA2F43D65400140064 /* CTAAssistantTests */,
 				2B45FC042F43D65400140064 /* CTAAssistantUITests */,
 				2B45FBE92F43D65200140064 /* Products */,
@@ -240,6 +243,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B45FC452F43E00000140064 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -428,6 +432,9 @@
 				DEVELOPMENT_TEAM = 279PV9XKZ2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "CTAAssistant/Info.plist";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "CTA Transit Assistant uses Bluetooth to connect to Meta AI Glasses for hands-free audio announcements of train arrivals and schedules. Bluetooth is required to stream audio to your glasses.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "CTA Transit Assistant needs your location to find the nearest CTA L station and display real-time train arrival times. Your location is only used to determine proximity to stations and is not shared.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -460,6 +467,9 @@
 				DEVELOPMENT_TEAM = 279PV9XKZ2;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "CTAAssistant/Info.plist";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "CTA Transit Assistant uses Bluetooth to connect to Meta AI Glasses for hands-free audio announcements of train arrivals and schedules. Bluetooth is required to stream audio to your glasses.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "CTA Transit Assistant needs your location to find the nearest CTA L station and display real-time train arrival times. Your location is only used to determine proximity to stations and is not shared.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
