@@ -12,16 +12,40 @@
 	<string>Optional: Record transit incidents for safety. Session-based, only when you tap to start.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Optional: Capture audio with safety recordings. Only when recording is active.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ctaassistant</string>
+			</array>
+		</dict>
+	</array>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>metaai</string>
+		<string>fb-viewapp</string>
+	</array>
+	<key>UISupportedExternalAccessoryProtocols</key>
+	<array>
+		<string>com.meta.ar.wearable</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>
+		<string>bluetooth-peripheral</string>
+		<string>external-accessory</string>
 	</array>
 	<key>MWDAT</key>
 	<dict>
+		<key>AppLinkURLScheme</key>
+		<string>ctaassistant://</string>
+		<key>MetaAppID</key>
+		<string>0</string>
 		<key>Analytics</key>
 		<dict>
 			<key>OptOut</key>
